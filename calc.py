@@ -35,7 +35,7 @@ def mask(desc, lista):
     num = 0;
     for x in lista:
         num = num | (1<<x)
-    print(".equ {}, {}".format(desc, bin(num))) 
+    print(".equ {: <13}, {:#020b} // hexa: {:#08x}".format(desc, num, num)) 
 
 mask("PINS",[PIN_PNS_RED, PIN_PNS_GREEN, PIN_SNS_RED, PIN_SNS_YELLOW, 
         PIN_SNS_GREEN, PIN_PEW_RED, PIN_PEW_GREEN, PIN_SEW_RED, 
