@@ -45,10 +45,11 @@
 # Kernel Module Compile Results
 *.mod*
 *.cmd
-.tmp_versions/
+.tmp_versions/ 
 modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
 build
 .vscode
+__pycache__
