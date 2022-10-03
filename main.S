@@ -12,12 +12,12 @@
 .equ PINS         , 0b111101111100011111 // hexa: 0x03df1f
 .equ OUTPUT_PINS  , 0b000001111100011111 // hexa: 0x001f1f
 .equ INPUT_PINS   , 0b111100000000000000 // hexa: 0x03c000
-.equ MASK_GRRR    , 0b000000010100010001 // hexa: 0x000511
-.equ MASK_YRRR    , 0b000000010100001001 // hexa: 0x000509
+.equ MASK_GRGR    , 0b000000010100010010 // hexa: 0x000512
+.equ MASK_YRGR    , 0b000000010100001010 // hexa: 0x00050a
 .equ MASK_RGRG    , 0b000001001000000101 // hexa: 0x001205
 .equ MASK_GRGR    , 0b000000010100010010 // hexa: 0x000512
-.equ MASK_RYRR    , 0b000000100100000101 // hexa: 0x000905
-.equ MASK_RGRR    , 0b000001000100000101 // hexa: 0x001105
+.equ MASK_RYRG    , 0b000000101000000101 // hexa: 0x000a05
+.equ MASK_RGRG    , 0b000001001000000101 // hexa: 0x001205
 .equ MASK_PIN_IRNS, 0b000100000000000000 // hexa: 0x004000
 .equ MASK_PIN_IREW, 0b001000000000000000 // hexa: 0x008000
 .equ MASK_PIN_BNS , 0b010000000000000000 // hexa: 0x010000
@@ -90,26 +90,26 @@ main_asm:
     ldr r1, =0
     bl xgpio_set_dir_masked
 
-    b state00_RYRR
+    b state00_RYRG
 
-state00_RYRR:
+state00_RYRG:
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_RYRR
+    ldr r1, =MASK_RYRG
     bl xgpio_put_masked
     
     //esperar por 5 segundos
     ldr r0, =SEG_5 
     bl sleep 
 
-    b state01_GRRR
+    b state01_GRGR
 
 
-state01_GRRR:
+state01_GRGR:
     bl reset_counter
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_GRRR
+    ldr r1, =MASK_GRGR
     bl xgpio_put_masked
-    state01_GRRR_checks:
+    state01_GRGR_checks:
         bl xgpio_get_all //r0 se queda con el estado de pines
         
         //check B_EW
@@ -117,38 +117,38 @@ state01_GRRR:
         and r1, r1, r0 //aplicar máscara para solo dejar ese pin 
         ldr r2, =MASK_PIN_BEW
         cmp r2, r1  //si mascara y resultado son iguales el pin está en 1
-        bne state02_YRRR_BEW
+        bne state02_YRGR_BEW
 
         //check IR_NS
         ldr r1, =MASK_PIN_IRNS 
         and r1, r1, r0 
         ldr r2, =MASK_PIN_IRNS 
         cmp r2, r1 
-        bne state04_YRRR
+        bne state04_YRGR
 
         //check t
         ldr r0, =counter 
         ldr r1, [r0]
         ldr r2, =SEG_55 //55 segundos
         cmp r1, r2
-        bpl state04_YRRR 
+        bpl state04_YRGR 
 
         //return to check
-        b state01_GRRR_checks
+        b state01_GRGR_checks
 
 
-state02_YRRR_BEW:
+state02_YRGR_BEW:
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_YRRR
+    ldr r1, =MASK_YRGR
     bl xgpio_put_masked
 
     //esperar por 5 segundos
     ldr r0, =SEG_5 
     bl sleep 
 
-    b state03_RGRG
+    b state03_RGRG_BEW
 
-state03_RGRG:
+state03_RGRG_BEW:
     ldr r0, =OUTPUT_PINS
     ldr r1, =MASK_RGRG
     bl xgpio_put_masked
@@ -157,24 +157,24 @@ state03_RGRG:
     ldr r0, =SEG_15 
     bl sleep 
 
-    b state00_RYRR
+    b state00_RYRG
 
-state04_YRRR:
+state04_YRGR:
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_YRRR
+    ldr r1, =MASK_YRGR
     bl xgpio_put_masked
 
     //esperar por 5 segundos
     ldr r0, =SEG_5
     bl sleep 
 
-    b state05_RGRR
+    b state05_RGRG
 
-state05_RGRR:
+state05_RGRG:
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_RGRR
+    ldr r1, =MASK_RGRG
     bl xgpio_put_masked
-    state05_RGRR_checks:
+    state05_RGRG_checks:
         bl xgpio_get_all //r0 se queda con el estado de pines
         
         //check B_NS
@@ -182,37 +182,37 @@ state05_RGRR:
         and r1, r1, r0 //aplicar máscara para solo dejar ese pin 
         ldr r2, =MASK_PIN_BNS
         cmp r2, r1  //si mascara y resultado son iguales el pin está en 1
-        bne state06_RYRR_BNS
+        bne state06_RYRG_BNS
 
         //check IR_EW
         ldr r1, =MASK_PIN_IREW 
         and r1, r1, r0 
         ldr r2, =MASK_PIN_IREW 
         cmp r2, r1 
-        bne state00_RYRR
+        bne state00_RYRG
 
         //check t
         ldr r0, =counter 
         ldr r1, [r0]
         ldr r2, =SEG_55 //55 segundos
         cmp r1, r2
-        bpl state00_RYRR
+        bpl state00_RYRG
 
         //return to check
-        b state05_RGRR_checks
+        b state05_RGRG_checks
 
-state06_RYRR_BNS:
+state06_RYRG_BNS:
     ldr r0, =OUTPUT_PINS
-    ldr r1, =MASK_RYRR
+    ldr r1, =MASK_RYRG
     bl xgpio_put_masked
 
     //esperar por 5 segundos
     ldr r0, =SEG_5
     bl sleep 
 
-    b state07_GRGR
+    b state07_GRGR_BNS
 
-state07_GRGR:
+state07_GRGR_BNS:
     ldr r0, =OUTPUT_PINS
     ldr r1, =MASK_GRGR
     bl xgpio_put_masked
@@ -221,7 +221,7 @@ state07_GRGR:
     ldr r0, =SEG_15
     bl sleep 
 
-    b state04_YRRR
+    b state04_YRGR
 
 
 .data 
