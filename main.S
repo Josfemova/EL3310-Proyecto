@@ -2,7 +2,6 @@
 .equ SYSTICK_RVR_OFFSET, 0x4
 .equ SYSTICK_CVR_OFFSET, 0x8
 
-
 //valores generales
 .equ LOW,    0 
 .equ HIGH,   1
@@ -45,7 +44,6 @@ sleep: //esperar por la cantidad de milisegundos dados en r0
         bmi sleep_loop 
 
     pop {r4, pc}
-
 
 .global init_systick
 init_systick:
@@ -153,7 +151,7 @@ state03_RGRG_BEW:
     ldr r1, =MASK_RGRG
     bl xgpio_put_masked
 
-    //esperar por 5 segundos
+    //esperar por 15 segundos
     ldr r0, =SEG_15 
     bl sleep 
 

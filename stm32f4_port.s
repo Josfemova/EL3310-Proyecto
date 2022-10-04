@@ -16,32 +16,24 @@ xgpio_init_mask:
 xgpio_set_dir_masked:
     //r0 es la máscara de los pines
     //r1 es la máscara de direcciones
-    ldr r2, =gpio_dir //obtener direccion de gpio_state 
-    ldr r3, =0xFFFFFFFF //preparando dato a escribir
-    and r1, r1, r0 //solo tomar en cuenta 1's de la máscara 
-    eor r3, r3, r0 //poner todos los campos correspondientes a pines como 0 
-    orr r3, r3, r1 //finalizar valor a comparar 
-    ldr r0, [r2]   //obtener valor de pines actual 
-    
-    //aplicar and a valor de gpios actual para obtener valor final
-    and r0, r0, r3 
-    str r0, [r2]
+    ldr r2, =gpio_dir //obtener direccion de gpio_dir
+    ldr r3, [r2]   //cargar valor de pines a r3
+    eor r3, r3, r0 //aplicar 0's en pines a cambiar
+    and r1, r1, r0 //aplicar 0's en valores fuera de máscara
+    orr r1, r1, r3 //aplicar valores a forzar en el valor de pines a guardar
+    str r1, [r2]  //guardar el valor final en gpio_dir 
     bx lr
 
 .global xgpio_put_masked
-xgpio_set_put_masked:
+xgpio_put_masked:
     //r0 es la máscara de los pines
     //r1 es la máscara de valores
     ldr r2, =gpio_state //obtener direccion de gpio_state 
-    ldr r3, =0xFFFFFFFF //preparando dato a escribir
-    and r1, r1, r0 //solo tomar en cuenta 1's de la máscara 
-    eor r3, r3, r0 //poner todos los campos correspondientes a pines como 0 
-    orr r3, r3, r1 //finalizar valor a comparar 
-    ldr r0, [r2]   //obtener valor de pines actual 
-    
-    //aplicar and a valor de gpios actual para obtener valor final
-    and r0, r0, r3 
-    str r0, [r2]
+    ldr r3, [r2]   //cargar valor de pines a r3
+    eor r3, r3, r0 //aplicar 0's en pines a cambiar
+    and r1, r1, r0 //aplicar 0's en valores fuera de máscara
+    orr r1, r1, r3 //aplicar valores a forzar en el valor de pines a guardar
+    str r1, [r2]  //guardar el valor final en gpio_state 
     bx lr
 
 .global xgpio_get_all
